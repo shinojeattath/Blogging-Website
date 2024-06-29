@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { 
   TextField, 
   Button, 
   Typography, 
   Container, 
   Box, 
-  Link,
   ThemeProvider,
   createTheme,
   CssBaseline,
@@ -160,7 +160,7 @@ const SignUp = () => {
                 </motion.div>
                 <Grid container justifyContent="flex-end">
                   <Grid item>
-                    <Link href="#" variant="body2">
+                    <Link to={'/login'} className='custom-link' >
                       Already have an account? Sign in
                     </Link>
                   </Grid>

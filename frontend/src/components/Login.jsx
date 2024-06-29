@@ -1,17 +1,22 @@
+// Imports
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { 
   TextField, 
   Button, 
   Typography, 
   Container, 
-  Box, 
-  Link,
+  Box,
   ThemeProvider,
   createTheme,
-  CssBaseline
+  CssBaseline,
+  styled
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+// End Imports
+
+// Theme
 
 const theme = createTheme({
   palette: {
@@ -32,6 +37,10 @@ const theme = createTheme({
   },
 });
 
+// End Theme
+
+
+
 const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,6 +50,7 @@ const SignIn = () => {
     console.log('Sign in submitted', { email, password });
   };
 
+//   Render
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -128,10 +138,8 @@ const SignIn = () => {
                   </Button>
                 </motion.div>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Link href="#" variant="body2">
-                    Forgot password?
-                  </Link>
-                  <Link href="#" variant="body2">
+                  
+                  <Link to={'/signup' } className='custom-link' >
                     {"Don't have an account? Sign Up"}
                   </Link>
                 </Box>
