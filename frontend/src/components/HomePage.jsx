@@ -61,17 +61,6 @@ const HomePage = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            BlogApp
-          </Typography>
-          <Button color="inherit">Home</Button>
-          <Button color="inherit">Categories</Button>
-          <Button color="inherit">About</Button>
-          <Link to={'/login'} className='custom-link'>Login</Link>
-        </Toolbar>
-      </AppBar>
       <main>
         <Box
           sx={{

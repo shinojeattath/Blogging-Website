@@ -1,19 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { 
-  TextField, 
-  Button, 
-  Typography, 
-  Container, 
-  Box, 
-  ThemeProvider,
-  createTheme,
-  CssBaseline,
-  Grid
-} from '@mui/material';
+import { Link, useNavigate} from 'react-router-dom';
+import { TextField, Button, Typography, Container, Box, ThemeProvider, createTheme, CssBaseline, Grid} from '@mui/material';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import axios from 'axios';
+// end Import
 
+// Theme
 const theme = createTheme({
   palette: {
     mode: 'dark',
@@ -33,17 +26,35 @@ const theme = createTheme({
   },
 });
 
-const SignUp = () => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+// End Theme
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Sign up submitted', { firstName, lastName, email, password });
+const SignUp = () => {
+
+  const navigate = useNavigate()
+
+// data from text area
+  const [input,setInput] = useState({firstName:'',lastName:'',email:'',password:'',age:'',gender:'',phone:''})
+  const handleChange = (e) =>{
+    setInput({...input,[e.target.name]:e.target.value})
+    console.log(input)
+  }
+
+// submit data
+  const addData = (e) => {
+    e.preventDefault()
+    axios.post('http://127.0.0.1:5050/post', input)
+    .then((response) => {
+      console.log(response.data)
+      console.log("data added")
+      navigate('/login')
+    })
+    .catch((error) => {
+      console.log(error)
+    })
+    
   };
 
+// render
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -95,7 +106,7 @@ const SignUp = () => {
               <Typography component="h1" variant="h5">
                 Sign up
               </Typography>
-              <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 3 }}>
+              <Box component="form" onSubmit={addData} noValidate sx={{ mt: 3 }}>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
                     <TextField
@@ -106,8 +117,8 @@ const SignUp = () => {
                       id="firstName"
                       label="First Name"
                       autoFocus
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
+                      value={input.firstName}
+                      onChange={handleChange}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -118,8 +129,8 @@ const SignUp = () => {
                       label="Last Name"
                       name="lastName"
                       autoComplete="family-name"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
+                      value={input.lastName}
+                      onChange={handleChange}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -130,8 +141,8 @@ const SignUp = () => {
                       label="Email Address"
                       name="email"
                       autoComplete="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      value={input.email}
+                      onChange={handleChange}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -143,10 +154,44 @@ const SignUp = () => {
                       type="password"
                       id="password"
                       autoComplete="new-password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      value={input.password}
+                      onChange={handleChange}
                     />
                   </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      fullWidth
+                      name="age"
+                      label="age"
+                      id="age"
+                      value={input.age}
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      fullWidth
+                      name="gender"
+                      label="Gender"
+                      id="gender"
+                      value={input.gender}
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      fullWidth
+                      name="phone"
+                      label="Phone Number"
+                      id="phone"
+                      value={input.phone}
+                      onChange={handleChange}
+                    />
+                  </Grid>
+
                 </Grid>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Button
