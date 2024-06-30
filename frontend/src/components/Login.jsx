@@ -1,19 +1,11 @@
 // Imports
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { 
-  TextField, 
-  Button, 
-  Typography, 
-  Container, 
-  Box,
-  ThemeProvider,
-  createTheme,
-  CssBaseline,
-  styled
-} from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
+import { TextField,  Button, Typography,  Container,  Box, ThemeProvider, createTheme, CssBaseline, styled } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import axios from 'axios'
+import { useEffect } from 'react';
 // End Imports
 
 // Theme
@@ -42,12 +34,56 @@ const theme = createTheme({
 
 
 const SignIn = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // variables
+  const navigate = useNavigate()
+  const [submitted, setSubmitted] = useState(false)
+  const [input,setInput] = useState({email:'',password:''})
+  const [authenticated, setAuthenticated] = useState(false)
+
+  // End variables
+  
+  useEffect(() => {
+    console.log("useeffect")
+    if(submitted){
+      axios.get('http://localhost:5050/get', {params:{email:input.email}})
+      .then((response) => {
+        const email = response.data.email
+        console.log(response.data)
+        console.log(email)
+
+        if(email == input.email){
+          console.log("email matched")
+          if(response.data.password == input.password){
+            console.log("password matched")
+            setAuthenticated(true)
+            navigate('/')
+          }
+          else{
+            console.log("password not matched")
+          }
+        }
+        else{
+          console.log("email not matched")
+        }
+      })
+      .catch((error) => {
+        console.log("error" + error)
+      })
+      .finally(() => {
+        setSubmitted(false)
+      })
+    }
+  },[submitted])
+  
+
+  const handleChange = (e) =>{
+    setInput({...input,[e.target.name]:e.target.value})
+    console.log(e.target.value)
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Sign in submitted', { email, password });
+    setSubmitted(true)
   };
 
 //   Render
@@ -112,8 +148,8 @@ const SignIn = () => {
                   name="email"
                   autoComplete="email"
                   autoFocus
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={input.email}
+                  onChange={handleChange}
                 />
                 <TextField
                   margin="normal"
@@ -124,8 +160,8 @@ const SignIn = () => {
                   type="password"
                   id="password"
                   autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={input.password}
+                  onChange={handleChange}
                 />
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Button

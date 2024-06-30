@@ -21,6 +21,8 @@ const theme = createTheme({
     },
   });
 const Navbar = () => {
+
+  let authenticated = true
   return (
     
     <div>
@@ -33,7 +35,9 @@ const Navbar = () => {
           <Button color="inherit">Home</Button>
           <Button color="inherit">Categories</Button>
           <Button color="inherit">About</Button>
-          <Link to={'/login'} className='custom-link'>LOGIN</Link>
+          {authenticated? <Link to={'/logout'} className='custom-link'>&nbsp;PROFILE</Link>: null}
+          {authenticated? <Link to={'/logout'} className='custom-link'>&nbsp;LOGOUT</Link>: null}
+          <Link to={'/login'} className='custom-link'>&nbsp;LOGIN</Link>
         </Toolbar>
       </AppBar>
       </ThemeProvider>

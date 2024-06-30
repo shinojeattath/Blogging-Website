@@ -28,6 +28,17 @@ app.post('/post', async(req,res) => {
 
 // get API
 
+app.get('/get', async(req,res) =>{
+    try {
+        const {email} = req.query
+        var data = await user.findOne({email})
+        res.send(data)
+    } catch (error) {
+        console.log(error)
+        res.send('Data not found\n' + error)
+    }
+})
+
 // Listen
 app.listen(5050, () =>{
     console.log("Server running on 5050")
