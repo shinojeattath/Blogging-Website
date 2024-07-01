@@ -6,6 +6,7 @@ import { TextField,  Button, Typography,  Container,  Box, ThemeProvider, create
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import axios from 'axios'
 import { useEffect } from 'react';
+import { useAuth } from '../AuthContext';
 // End Imports
 
 // Theme
@@ -38,7 +39,7 @@ const SignIn = () => {
   const navigate = useNavigate()
   const [submitted, setSubmitted] = useState(false)
   const [input,setInput] = useState({email:'',password:''})
-  const [authenticated, setAuthenticated] = useState(false)
+  const { setAuthenticated } = useAuth();  
 
   // End variables
   

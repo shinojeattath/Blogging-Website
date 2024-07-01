@@ -1,6 +1,9 @@
-import { AppBar, Button, Toolbar, Typography, ThemeProvider,  createTheme,  } from "@mui/material";
-import { Link } from "react-router-dom";
-import React from 'react'
+import { AppBar, Button, Toolbar, Typography, ThemeProvider,  createTheme, IconButton,  } from "@mui/material";
+import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from 'react'
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import { useAuth } from '../AuthContext';
+
 
 const theme = createTheme({
     palette: {
@@ -20,9 +23,20 @@ const theme = createTheme({
       fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     },
   });
+
 const Navbar = () => {
 
-  let authenticated = true
+  const navigate = useNavigate()
+
+  const { authenticated, setAuthenticated } = useAuth();
+  
+  const handleLogout = () => {
+    setAuthenticated(false)
+    navigate('/')
+    
+    console.log("logging out")
+  }
+
   return (
     
     <div>
@@ -32,12 +46,24 @@ const Navbar = () => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             BlogApp
           </Typography>
-          <Button color="inherit">Home</Button>
-          <Button color="inherit">Categories</Button>
-          <Button color="inherit">About</Button>
-          {authenticated? <Link to={'/logout'} className='custom-link'>&nbsp;PROFILE</Link>: null}
-          {authenticated? <Link to={'/logout'} className='custom-link'>&nbsp;LOGOUT</Link>: null}
-          <Link to={'/login'} className='custom-link'>&nbsp;LOGIN</Link>
+          <Button color="inherit"><Link to={'/'} className="custom-link">Home</Link></Button>
+          <Button color="inherit"><Link to={'/blog'} className="custom-link">BLOGS</Link></Button>
+
+          {authenticated && ( <Button color="inherit" onClick={handleLogout}>LOGOUT</Button>)}
+          {!authenticated && (<Link to={'/login'} className='custom-link'>&nbsp;LOGIN</Link>)}
+          {authenticated && (
+            <div>
+              <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                color="inherit"
+              >
+                <AccountCircle />
+              </IconButton>
+              </div>
+             )} 
         </Toolbar>
       </AppBar>
       </ThemeProvider>

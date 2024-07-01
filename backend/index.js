@@ -7,6 +7,7 @@ const app = express()
 app.use(cors())
 
 var user = require('./models/user')
+var userBlog = require('./models/userBlog')
 // end imports
 
 // middleware
@@ -15,6 +16,8 @@ app.use(express.json())
 
 // post API
 
+
+// Login API
 app.post('/post', async(req,res) => {
     try {
         await user(req.body).save()

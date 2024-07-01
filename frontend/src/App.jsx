@@ -4,17 +4,20 @@ import SignUp from './components/SignUp'
 import {  Routes, Route  } from 'react-router-dom'
 import HomePage from './components/HomePage'
 import Navbar from './components/Navbar'
-
+import BlogPostPage from './components/Blog'
+import { AuthProvider } from './AuthContext'
 const App = () => {
   return (
     <>
-    <Navbar/>
+    <AuthProvider>
+  <Navbar/>
   <Routes>
       <Route path="/" element={<HomePage/>} />
       <Route path="/login" element={<Login/>} />
       <Route path="/signup" element={<SignUp/>} />
+      <Route path="/blog" element={<BlogPostPage/>} />
   </Routes>
-   
+  </AuthProvider>
     </>
   )
 }
