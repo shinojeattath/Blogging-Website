@@ -18,7 +18,7 @@ const schema = mongoose.Schema({
         required: true
     },
     content:{
-        type: Number,
+        type: String,
         required: true
     },
     created_at:{type: String,

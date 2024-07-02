@@ -1,21 +1,6 @@
 import React from 'react';
-import { 
-  ThemeProvider, 
-  createTheme, 
-  CssBaseline,
-  Container,
-  Typography,
-  Box,
-  Avatar,
-  Divider,
-  Chip,
-  TextField,
-  Button,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar
-} from '@mui/material';
+import { useLocation } from 'react-router-dom';
+import { ThemeProvider,   createTheme,   CssBaseline,  Container,  Typography,  Box,  Avatar, Divider,  Chip,  TextField,  Button,  List,  ListItem,  ListItemText,  ListItemAvatar} from '@mui/material';
 import { motion } from 'framer-motion';
 
 const theme = createTheme({
@@ -43,7 +28,15 @@ const fadeIn = {
   transition: { duration: 0.6 }
 };
 
-const BlogPostPage = () => {
+const BlogPostPage = (props) => {
+  const location = useLocation();
+
+  if(location.state){
+    console.log("blogpage data",location.state.post);
+  }
+  else{
+    console.log("No post data found");
+  }
   // Mock data for the blog post
   const post = {
     title: "The Future of AI in Blogging",
@@ -76,19 +69,19 @@ const BlogPostPage = () => {
       <Container maxWidth="md" sx={{ py: 8 }}>
         <motion.div {...fadeIn}>
           <Typography variant="h2" component="h1" gutterBottom>
-            {post.title}
+            {location.state.post.title}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
             <Avatar src={post.author.avatar} sx={{ mr: 2 }} />
             <Typography variant="subtitle1" sx={{ mr: 2 }}>
-              {post.author.name}
+              {location.state.post.firstName} {location.state.post.lastName}
             </Typography>
             <Typography variant="subtitle2" color="text.secondary">
-              {post.date}
+              {location.state.post.created_at}
             </Typography>
           </Box>
           <Typography variant="body1" paragraph>
-            {post.content}
+            {location.state.post.content}
           </Typography>
           <Box sx={{ mb: 4 }}>
             {post.tags.map((tag, index) => (

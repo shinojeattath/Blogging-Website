@@ -143,9 +143,10 @@ const SignIn = () => {
                 <TextField
                   margin="normal"
                   required
-                  fullWidth
+                  fullWidth 
                   id="email"
                   label="Email Address"
+                  type='email'
                   name="email"
                   autoComplete="email"
                   autoFocus

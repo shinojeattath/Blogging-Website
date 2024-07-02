@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../App.css'
+import axios from 'axios';
 import { 
   ThemeProvider, 
   createTheme, 
@@ -58,6 +59,24 @@ const HomePage = () => {
     { title: "Monetizing Your Blog in 2024", image: "https://source.unsplash.com/random?money", date: "May 30, 2024" },
   ];
 
+  // recent posts
+  const [data,setData] =useState([])
+  useEffect(() =>{
+    const fetchData = async () =>{
+
+      const response = await axios.get('http://127.0.0.1:5050/getBlog')
+      .then((response) => {
+        console.log("Starting data fetch...");
+          console.log("Response received:", response);
+          console.log("Response data:", response.data);
+          setData(response.data)
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+      }
+      fetchData()
+    },[])
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -121,14 +140,15 @@ const HomePage = () => {
               Recent Posts
             </Typography>
             <Grid container spacing={4}>
-              {recentPosts.map((post, index) => (
+              {data.map((post, index) => (
                 <Grid item key={index} xs={12} sm={6} md={4}>
+                  <Link to={`/blog/${post._id}`} state={{ post: post }}>
                   <Card>
                     <CardActionArea>
                       <CardMedia
                         component="img"
                         height="140"
-                        image={post.image}
+                        image='https://img.freepik.com/free-photo/toy-bricks-table_144627-48267.jpg'
                         alt={post.title}
                       />
                       <CardContent>
@@ -141,6 +161,7 @@ const HomePage = () => {
                       </CardContent>
                     </CardActionArea>
                   </Card>
+                  </Link>
                 </Grid>
               ))}
             </Grid>

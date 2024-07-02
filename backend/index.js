@@ -6,6 +6,7 @@ require('./connection')
 const app = express()
 app.use(cors())
 
+// models
 var user = require('./models/user')
 var userBlog = require('./models/userBlog')
 // end imports
@@ -29,6 +30,31 @@ app.post('/post', async(req,res) => {
     }
 })
 
+
+// Blog post API
+
+app.post('/postBlog', async(req,res) => {
+    try {
+        await userBlog(req.body).save()
+        res.send('Blog saved')
+        console.log("blog saved") 
+    } catch (error) {
+        console.log(error)
+        res.send('Blog not saved\n' + error)
+    }
+})
+
+// get Blog API everyone
+
+app.get('/getBlog', async(req,res) => {
+    try {
+        var data = await userBlog.find()
+        res.send(data)
+    } catch (error) {
+        console.log(error)
+        res.send('Data not found\n' + error)
+    }
+})
 // get API
 
 app.get('/get', async(req,res) =>{
