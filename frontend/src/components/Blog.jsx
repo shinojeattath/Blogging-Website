@@ -29,16 +29,9 @@ const fadeIn = {
 };
 
 const BlogPostPage = (props) => {
-  const location = useLocation();
 
-  if(location.state){
-    console.log("blogpage data",location.state.post);
-  }
-  else{
-    console.log("No post data found");
-  }
-  // Mock data for the blog post
-  const post = {
+   // Mock data for the blog post 
+   const post = {
     title: "The Future of AI in Blogging",
     author: {
       name: "Jane Doe",
@@ -62,6 +55,20 @@ const BlogPostPage = (props) => {
       { author: "Emily Brown", content: "I agree that maintaining the human element is crucial. AI should enhance, not replace human creativity.", avatar: "https://source.unsplash.com/random?woman" }
     ]
   };
+
+  // End dummy data
+
+
+  const location = useLocation();
+
+  if(location.state){
+    console.log("blogpage data",location.state.post);
+  }
+  else{
+    console.log("No post data found");
+  }
+ 
+  
 
   return (
     <ThemeProvider theme={theme}>

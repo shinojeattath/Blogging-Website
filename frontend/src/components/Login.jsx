@@ -39,7 +39,7 @@ const SignIn = () => {
   const navigate = useNavigate()
   const [submitted, setSubmitted] = useState(false)
   const [input,setInput] = useState({email:'',password:''})
-  const { setAuthenticated } = useAuth();  
+  const { setAuthenticated, setUserId, userId } = useAuth();  
 
   // End variables
   
@@ -57,6 +57,8 @@ const SignIn = () => {
           if(response.data.password == input.password){
             console.log("password matched")
             setAuthenticated(true)
+            setUserId(response.data.email)
+            console.log("user id: " + userId)
             navigate('/')
           }
           else{

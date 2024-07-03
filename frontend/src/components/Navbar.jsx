@@ -28,10 +28,11 @@ const Navbar = () => {
 
   const navigate = useNavigate()
 
-  const { authenticated, setAuthenticated } = useAuth();
+  const { authenticated, setAuthenticated, setUserId } = useAuth();
   
   const handleLogout = () => {
     setAuthenticated(false)
+    setUserId('')
     navigate('/')
     
     console.log("logging out")
@@ -53,7 +54,7 @@ const Navbar = () => {
           {!authenticated && (<Link to={'/login'} className='custom-link'>&nbsp;LOGIN</Link>)}
           {authenticated && (
             <div>
-              <IconButton
+              <IconButton onClick={() => navigate('/profile')}
                 size="large"
                 aria-label="account of current user"
                 aria-controls="menu-appbar"
