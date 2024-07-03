@@ -51,6 +51,7 @@ const Navbar = () => {
           <Button color="inherit"><Link to={'/blog'} className="custom-link">BLOGS</Link></Button>
 
           {authenticated && ( <Button color="inherit" onClick={handleLogout}>LOGOUT</Button>)}
+          {authenticated && ( <Button color="inherit"><Link to={'/addBlog' } className='custom-link'>ADD</Link></Button>)}
           {!authenticated && (<Link to={'/login'} className='custom-link'>&nbsp;LOGIN</Link>)}
           {authenticated && (
             <div>

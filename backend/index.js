@@ -55,7 +55,7 @@ app.get('/getBlog', async(req,res) => {
         res.send('Data not found\n' + error)
     }
 })
-// get API
+// get API for login user
 
 app.get('/get', async(req,res) =>{
     try {
@@ -65,6 +65,18 @@ app.get('/get', async(req,res) =>{
     } catch (error) {
         console.log(error)
         res.send('Data not found\n' + error)
+    }
+})
+
+// post api for new blog 
+app.post('/postBlog', async(req,res) => {
+    try {
+        await userBlog(req.body).save()
+        res.send('Blog saved')
+        console.log("blog saved") 
+    } catch (error) {
+        console.log(error)
+        res.send('Blog not saved\n' + error)
     }
 })
 

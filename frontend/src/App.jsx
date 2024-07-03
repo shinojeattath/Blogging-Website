@@ -5,8 +5,11 @@ import ProfilePage from './components/Profile'
 import HomePage from './components/HomePage'
 import Navbar from './components/Navbar'
 import BlogPostPage from './components/Blog'
+import AddBlogPage from './components/AddBlogPage'
+
 import {  Routes, Route  } from 'react-router-dom'
 import { AuthProvider } from './AuthContext'
+
 
 const App = () => {
   return (
@@ -19,6 +22,7 @@ const App = () => {
       <Route path="/signup" element={<SignUp/>} />
       <Route path="/blog/:id" element={<BlogPostPage/>} />
       <Route path="/profile" element={<ProfilePage/>} />
+      <Route path="/addBlog" element={<AddBlogPage/>} />
       
   </Routes>
   </AuthProvider>
