@@ -11,11 +11,25 @@ import {
   Divider,
   ThemeProvider,
   createTheme,
-  CssBaseline
+  CssBaseline,
+  Link,
+  Card,
+  CardActionArea,
+  CardMedia,
+  CardContent
+  
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useAuth } from '../AuthContext';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
+
+const fadeIn = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6 }
+};
 
 
 const theme = createTheme({
@@ -42,20 +56,57 @@ const ProfilePage = () => {
   const { userId } = useAuth();
   const [profileData, setProfileData] = useState(null)
   const editing = false
+  const [firstName, setFirstName] = useState("Guest")
+  const [lastName, setLastName] = useState("User")
+  const [userBlogs, setUserBlogs] = useState([])
+
 
   useEffect(() => {
-    if(userId){
-        axios.get(`http://localhost:5050/get`, {params:{email: userId}})
-            .then(response => {
-                console.log("got userid")
-                console.log(response.data)
-            setProfileData(response.data);
-            console.log("profiledata" + profileData)
-            })
-            .catch(error => console.error('Error fetching profile:', error));
+    const fetchData = async() =>{
+
+      if(userId){
+        const response = await axios.get(`http://localhost:5050/get`, {params:{email: userId}})
+        try {
+          
+          console.log("got userid")
+          console.log("Profile Data", response.data)
+          setProfileData(response.data);
+          setFirstName(response.data.firstName)
+          setLastName(response.data.lastName)
+          console.log("profiledata" + profileData)
+        } catch (error) {
+          console.log("error fetrching ",error)
+        }
+      }
     }
+    fetchData()
+
+
   },[userId])
 
+  useEffect(() => {
+    const fetchUserBlogs = async () => {
+      try {
+        if (userId) {
+          const response = await axios.get('http://localhost:5050/getUserBlog', { params: { email: userId } });
+          console.log("got blogs");
+          console.log("User Blogs", response.data);
+          // Ensure we're setting an array
+          setUserBlogs(Array.isArray(response.data) ? response.data : []);
+        }
+      } catch (error) {
+        console.log("error fetching blogs", error);
+        setUserBlogs([]); // Set to empty array in case of error
+      }
+    };
+  
+    fetchUserBlogs();
+  }, [userId]); // Add userId as a dependency
+
+
+
+
+  console.log("Profile dataaaaa",profileData)
   const handleChange = (e) => {
     setProfileData({
       ...profileData,
@@ -94,50 +145,14 @@ const ProfilePage = () => {
                       sx={{ width: 120, height: 120, mb: 2 }}
                       src='/default-avatar.png'
                     />
-                    <Typography variant="h5">djlkv</Typography>
+                    <Typography variant="h5">{firstName} {lastName}</Typography>
                   </Box>
                 </Grid>
                 <Grid item xs={12} sm={8}>
-                  {editing ? (
-                    <form onSubmit={handleSubmit}>
-                      <TextField
-                        fullWidth
-                        margin="normal"
-                        name="name"
-                        label="Name"
-                        value='blss'
-                        onChange={handleChange}
-                      />
-                      <TextField
-                        fullWidth
-                        margin="normal"
-                        name="email"
-                        label="Email"
-                        value={profileData.email}
-                        onChange={handleChange}
-                      />
-                      <TextField
-                        fullWidth
-                        margin="normal"
-                        name="bio"
-                        label="Bio"
-                        multiline
-                        rows={4}
-                        value={profileData.bio}
-                        onChange={handleChange}
-                      />
-                      <Box sx={{ mt: 2 }}>
-                        <Button type="submit" variant="contained" color="primary" sx={{ mr: 1 }}>
-                          Save
-                        </Button>
-                        <Button variant="outlined" onClick={() => setEditing(false)}>
-                          Cancel
-                        </Button>
-                      </Box>
-                    </form>
-                  ) : (
+                  
+                  
                     <>
-                      <Typography variant="body1"><strong>Email:</strong> email</Typography>
+                      <Typography variant="body1"><strong>Email:</strong> {userId}</Typography>
                       <Divider sx={{ my: 2 }} />
                       <Typography variant="body1"><strong>Bio:</strong></Typography>
                       <Typography variant="body2" sx={{ mt: 1 }}>No bio provided.</Typography>
@@ -147,12 +162,50 @@ const ProfilePage = () => {
                         </Button>
                       </Box>
                     </>
-                  )}
+                  
                 </Grid>
               </Grid>
             </Paper>
           </Box>
         </motion.div>
+        <motion.div {...fadeIn}>
+          <br/>
+            <Typography variant="h4" gutterBottom>
+               Posts
+            </Typography>
+
+            <Grid container spacing={4}>
+            {Array.isArray(userBlogs) && userBlogs.length > 0 ? (
+  userBlogs.map((post, index) => (
+    <Grid item key={index} xs={12} sm={6} md={4}>
+      <Card>
+        <CardActionArea>
+          <CardMedia
+            component="img"
+            height="140"
+            image='https://img.freepik.com/free-photo/toy-bricks-table_144627-48267.jpg'
+            alt={post.title}
+          />
+          <CardContent>
+            <Typography gutterBottom variant="h5" component="div">
+              {post.title}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {post.date}
+            </Typography>
+          </CardContent>
+        </CardActionArea>
+      </Card>
+    </Grid>
+  ))
+) : (
+  <Typography>No blogs found</Typography>
+)}
+            </Grid>
+
+
+          
+          </motion.div>
       </Container>
     </ThemeProvider>
   );

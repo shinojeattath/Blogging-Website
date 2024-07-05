@@ -30,9 +30,7 @@ app.post('/post', async(req,res) => {
     }
 })
 
-
 // Blog post API
-
 app.post('/postBlog', async(req,res) => {
     try {
         await userBlog(req.body).save()
@@ -45,7 +43,6 @@ app.post('/postBlog', async(req,res) => {
 })
 
 // get Blog API everyone
-
 app.get('/getBlog', async(req,res) => {
     try {
         var data = await userBlog.find()
@@ -55,8 +52,20 @@ app.get('/getBlog', async(req,res) => {
         res.send('Data not found\n' + error)
     }
 })
-// get API for login user
 
+// get Blog API for user
+app.get('/getUserBlog', async(req,res) => {
+    try {
+        const {email} = req.query
+        var data = await userBlog.find({email})
+        res.json(data)
+    } catch (error) {
+        console.log(error)
+        res.send('Data not found\n' + error)
+    }
+})
+
+// get API for login user
 app.get('/get', async(req,res) =>{
     try {
         const {email} = req.query
@@ -83,4 +92,4 @@ app.post('/postBlog', async(req,res) => {
 // Listen
 app.listen(5050, () =>{
     console.log("Server running on 5050")
-})
+}) 
