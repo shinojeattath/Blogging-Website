@@ -12,7 +12,6 @@ import {
   ThemeProvider,
   createTheme,
   CssBaseline,
-  Link,
   Card,
   CardActionArea,
   CardMedia,
@@ -22,7 +21,7 @@ import {
 import { motion } from 'framer-motion';
 import { useAuth } from '../AuthContext';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 
 const fadeIn = {
@@ -178,6 +177,7 @@ const ProfilePage = () => {
             {Array.isArray(userBlogs) && userBlogs.length > 0 ? (
   userBlogs.map((post, index) => (
     <Grid item key={index} xs={12} sm={6} md={4}>
+      <Link to={`/blog/${post._id}`} state={{post:post}} >
       <Card>
         <CardActionArea>
           <CardMedia
@@ -196,6 +196,7 @@ const ProfilePage = () => {
           </CardContent>
         </CardActionArea>
       </Card>
+      </Link>
     </Grid>
   ))
 ) : (
