@@ -67,6 +67,8 @@ const BlogPostPage = (props) => {
   else{
     console.log("No post data found");
   }
+
+  const currentUserBlog = true
  
   
 
@@ -95,6 +97,9 @@ const BlogPostPage = (props) => {
               <Chip key={index} label={tag} sx={{ mr: 1, mb: 1 }} />
             ))}
           </Box>
+            <Button variant="contained" color="primary">
+              Edit Blog
+            </Button>
           <Divider sx={{ my: 4 }} />
           <Typography variant="h5" gutterBottom>
             Comments
@@ -112,6 +117,7 @@ const BlogPostPage = (props) => {
               </ListItem>
             ))}
           </List>
+          {currentUserBlog && (
           <Box component="form" noValidate sx={{ mt: 4 }}>
             <TextField
               fullWidth
@@ -126,6 +132,8 @@ const BlogPostPage = (props) => {
               Post Comment
             </Button>
           </Box>
+          )}
+
         </motion.div>
       </Container>
     </ThemeProvider>
