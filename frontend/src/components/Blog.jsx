@@ -2,6 +2,9 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { ThemeProvider,   createTheme,   CssBaseline,  Container,  Typography,  Box,  Avatar, Divider,  Chip,  TextField,  Button,  List,  ListItem,  ListItemText,  ListItemAvatar} from '@mui/material';
 import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { useAuth } from '../AuthContext'
+import { useEffect } from 'react';
 
 const theme = createTheme({
   palette: {
@@ -29,9 +32,10 @@ const fadeIn = {
 };
 
 const BlogPostPage = (props) => {
-
-   // Mock data for the blog post 
-   const post = {
+  
+  const { userId } = useAuth()
+  // Mock data for the blog post 
+  const post = {
     title: "The Future of AI in Blogging",
     author: {
       name: "Jane Doe",
@@ -39,15 +43,15 @@ const BlogPostPage = (props) => {
     },
     date: "June 15, 2024",
     content: `
-      Artificial Intelligence is revolutionizing the way we create and consume content. In the realm of blogging, AI is opening up new possibilities and challenges.
-
-      One of the most significant impacts of AI on blogging is in content creation. AI-powered tools can now generate entire blog posts, suggest topics, and even optimize content for SEO. This has led to increased productivity for bloggers, allowing them to focus more on strategy and less on the nitty-gritty of writing.
-
-      However, the rise of AI in blogging also raises important questions about authenticity and the value of human creativity. While AI can produce grammatically correct and informative content, it often lacks the personal touch and unique insights that human writers bring to their work.
-
-      As we move forward, the key will be finding the right balance between leveraging AI tools to enhance our work and maintaining the human element that makes blogs engaging and relatable. The future of blogging will likely involve a symbiotic relationship between human creativity and AI assistance, rather than a complete takeover by machines.
-
-      What are your thoughts on the role of AI in blogging? How do you see it shaping the future of content creation?
+    Artificial Intelligence is revolutionizing the way we create and consume content. In the realm of blogging, AI is opening up new possibilities and challenges.
+    
+    One of the most significant impacts of AI on blogging is in content creation. AI-powered tools can now generate entire blog posts, suggest topics, and even optimize content for SEO. This has led to increased productivity for bloggers, allowing them to focus more on strategy and less on the nitty-gritty of writing.
+    
+    However, the rise of AI in blogging also raises important questions about authenticity and the value of human creativity. While AI can produce grammatically correct and informative content, it often lacks the personal touch and unique insights that human writers bring to their work.
+    
+    As we move forward, the key will be finding the right balance between leveraging AI tools to enhance our work and maintaining the human element that makes blogs engaging and relatable. The future of blogging will likely involve a symbiotic relationship between human creativity and AI assistance, rather than a complete takeover by machines.
+    
+    What are your thoughts on the role of AI in blogging? How do you see it shaping the future of content creation?
     `,
     tags: ["AI", "Blogging", "Technology", "Content Creation"],
     comments: [
@@ -55,9 +59,10 @@ const BlogPostPage = (props) => {
       { author: "Emily Brown", content: "I agree that maintaining the human element is crucial. AI should enhance, not replace human creativity.", avatar: "https://source.unsplash.com/random?woman" }
     ]
   };
-
+  
   // End dummy data
-
+  
+  const [editUser, setEditUser] = useState(false)
 
   const location = useLocation();
 
@@ -67,6 +72,22 @@ const BlogPostPage = (props) => {
   else{
     console.log("No post data found");
   }
+
+  
+  useEffect(() => {
+    if(location.state){
+      console.log("blogpage data",location.state.post);
+    }
+    else{
+      console.log("No post data found");
+    }
+  
+    if(location.state.post.email == userId){
+      setEditUser(true)
+      console.log("Auther of the post")
+    }
+    
+  },[ userId])
 
   const currentUserBlog = true
  
@@ -97,9 +118,9 @@ const BlogPostPage = (props) => {
               <Chip key={index} label={tag} sx={{ mr: 1, mb: 1 }} />
             ))}
           </Box>
-            <Button variant="contained" color="primary">
+           {(editUser && <Button variant="contained" color="primary">
               Edit Blog
-            </Button>
+            </Button>)}
           <Divider sx={{ my: 4 }} />
           <Typography variant="h5" gutterBottom>
             Comments

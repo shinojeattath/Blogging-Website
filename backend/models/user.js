@@ -26,6 +26,9 @@ const schema = mongoose.Schema({
     },
     phone:{type: Number,
         required: true
+    },
+    role:{type: String,
+        required: true
     }
 })
 

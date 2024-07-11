@@ -33,7 +33,7 @@ const SignUp = () => {
   const navigate = useNavigate()
 
 // data from text area
-  const [input,setInput] = useState({firstName:'',lastName:'',email:'',password:'',age:'',gender:'',phone:''})
+  const [input,setInput] = useState({firstName:'',lastName:'',email:'',password:'',age:'',gender:'',phone:'',role:'user'})
   const handleChange = (e) =>{
     setInput({...input,[e.target.name]:e.target.value})
     console.log(input)

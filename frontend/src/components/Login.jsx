@@ -39,44 +39,45 @@ const SignIn = () => {
   const navigate = useNavigate()
   const [submitted, setSubmitted] = useState(false)
   const [input,setInput] = useState({email:'',password:''})
-  const { setAuthenticated, setUserId, userId } = useAuth();  
+  const { setAuthenticated, setUserId, userId, login } = useAuth();  
+  
 
   // End variables
   
-  useEffect(() => {
-    console.log("useeffect")
-    if(submitted){
-      axios.get('http://localhost:5050/get', {params:{email:input.email}})
-      .then((response) => {
-        const email = response.data.email
-        console.log(response.data)
-        console.log(email)
+  // useEffect(() => {
+  //   console.log("useeffect")
+  //   if(submitted){
+  //     axios.get('http://localhost:5050/get', {params:{email:input.email}})
+  //     .then((response) => {
+  //       const email = response.data.email
+  //       console.log(response.data)
+  //       console.log(email)
 
-        if(email == input.email){
-          console.log("email matched")
-          if(response.data.password == input.password){
-            console.log("password matched")
-            setAuthenticated(true)
-            setUserId(response.data.email)
-            console.log("user id: " + userId)
-            navigate('/')
-          }
-          else{
-            console.log("password not matched")
-          }
-        }
-        else{
-          console.log("email not matched")
-        }
-      })
-      .catch((error) => {
-        console.log("error" + error)
-      })
-      .finally(() => {
-        setSubmitted(false)
-      })
-    }
-  },[submitted])
+  //       if(email == input.email){
+  //         console.log("email matched")
+  //         if(response.data.password == input.password){
+  //           console.log("password matched")
+  //           setAuthenticated(true)
+  //           setUserId(response.data.email)
+  //           console.log("user id: " + userId)
+  //           navigate('/')
+  //         }
+  //         else{
+  //           console.log("password not matched")
+  //         }
+  //       }
+  //       else{
+  //         console.log("email not matched")
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.log("error" + error)
+  //     })
+  //     .finally(() => {
+  //       setSubmitted(false)
+  //     })
+  //   }
+  // },[submitted])
   
 
   const handleChange = (e) =>{
@@ -141,7 +142,7 @@ const SignIn = () => {
               <Typography component="h1" variant="h5">
                 Sign in
               </Typography>
-              <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+              <Box component="form" onSubmit={ (e) =>{e.preventDefault(); login(input.email, input.password)}} noValidate sx={{ mt: 1 }}>
                 <TextField
                   margin="normal"
                   required

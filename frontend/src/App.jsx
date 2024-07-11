@@ -9,6 +9,7 @@ import AddBlogPage from './components/AddBlogPage'
 
 import {  Routes, Route  } from 'react-router-dom'
 import { AuthProvider } from './AuthContext'
+import AdminDashboard from './components/AdminDashboard'
 
 
 const App = () => {
@@ -16,6 +17,7 @@ const App = () => {
     <>
     <AuthProvider>
   <Navbar/>
+  
   <Routes>
       <Route path="/" element={<HomePage/>} />
       <Route path="/login" element={<Login/>} />
@@ -23,6 +25,7 @@ const App = () => {
       <Route path="/blog/:id" element={<BlogPostPage/>} />
       <Route path="/profile" element={<ProfilePage/>} />
       <Route path="/addBlog" element={<AddBlogPage/>} />
+      <Route path="/admin" element={<AdminDashboard/>} />
       
   </Routes>
   </AuthProvider>

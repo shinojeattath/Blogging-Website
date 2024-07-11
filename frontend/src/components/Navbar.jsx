@@ -28,7 +28,7 @@ const Navbar = () => {
 
   const navigate = useNavigate()
 
-  const { authenticated, setAuthenticated, setUserId, userId } = useAuth();
+  const { authenticated, setAuthenticated, setUserId, userId, isAdmin } = useAuth();
   
   const handleLogout = () => {
     setAuthenticated(false)
@@ -47,12 +47,11 @@ const Navbar = () => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             BlogApp
           </Typography>
-          <Button color="inherit"><Link to={'/'} className="custom-link">Home</Link></Button>
-          <Button color="inherit"><Link to={'/blog'} className="custom-link">BLOGS</Link></Button>
-
-          {authenticated && ( <Button color="inherit" onClick={handleLogout}>LOGOUT</Button>)}
+          <Button color="inherit"><Link to={'/'} className="custom-link">HOME</Link></Button>
           {authenticated && ( <Button color="inherit"><Link to={'/addBlog' } className='custom-link'>ADD</Link></Button>)}
+          {authenticated && ( <Button color="inherit" onClick={handleLogout}>LOGOUT</Button>)}
           {!authenticated && (<Link to={'/login'} className='custom-link'>&nbsp;LOGIN</Link>)}
+          {isAdmin && (<Link to={'/admin'} className='custom-link'>&nbsp;ADMIN DASHBOARD&nbsp;</Link>)}
           {authenticated && (
             <div>
               <IconButton onClick={() => navigate('/profile', {state:{userId}})}
