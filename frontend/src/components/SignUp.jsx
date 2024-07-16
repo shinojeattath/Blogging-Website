@@ -1,221 +1,209 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Link, useNavigate} from 'react-router-dom';
-import { TextField, Button, Typography, Container, Box, ThemeProvider, createTheme, CssBaseline, Grid} from '@mui/material';
+import styled, { createGlobalStyle } from 'styled-components';
+import { Typography } from '@mui/material';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import axios from 'axios';
-// end Import
 
-// Theme
-const theme = createTheme({
-  palette: {
-    mode: 'dark',
-    primary: {
-      main: '#BB86FC',
-    },
-    secondary: {
-      main: '#03DAC6',
-    },
-    background: {
-      default: '#121212',
-      paper: '#1E1E1E',
-    },
-  },
-  typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-  },
-});
+const GlobalStyle = createGlobalStyle`
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(180deg, hsla(0, 0%, 99%, 1) 0%, hsla(186, 100%, 92%, 1) 100%);
+    margin: 0;
+    padding: 0;
+    color: #333;
+  }
+`;
 
-// End Theme
+const SignUpContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem 0;
+`;
+
+const SignUpBox = styled(motion.div)`
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+  width: 100%;
+  max-width: 500px;
+`;
+
+const Form = styled.form`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+`;
+
+const Input = styled.input`
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+`;
+
+const FullWidthInput = styled(Input)`
+  grid-column: 1 / -1;
+`;
+
+const Button = styled(motion.button)`
+  grid-column: 1 / -1;
+  padding: 0.8rem;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+`;
+
+const StyledLink = styled(Link)`
+  color: #3498db;
+  text-decoration: none;
+  font-size: 0.9rem;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const IconWrapper = styled(motion.div)`
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+`;
 
 const SignUp = () => {
+  const navigate = useNavigate();
+  const [input, setInput] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    age: '',
+    gender: '',
+    phone: '',
+    role: 'user'
+  });
 
-  const navigate = useNavigate()
-
-// data from text area
-  const [input,setInput] = useState({firstName:'',lastName:'',email:'',password:'',age:'',gender:'',phone:'',role:'user'})
-  const handleChange = (e) =>{
-    setInput({...input,[e.target.name]:e.target.value})
-    console.log(input)
-  }
-
-// submit data
-  const addData = (e) => {
-    e.preventDefault()
-    axios.post('http://127.0.0.1:5050/post', input)
-    .then((response) => {
-      console.log(response.data)
-      console.log("data added")
-      navigate('/login')
-    })
-    .catch((error) => {
-      console.log(error)
-    })
-    
+  const handleChange = (e) => {
+    setInput({ ...input, [e.target.name]: e.target.value });
   };
 
-// render
+  const addData = (e) => {
+    e.preventDefault();
+    axios.post('http://127.0.0.1:5050/post', input)
+      .then((response) => {
+        console.log(response.data);
+        console.log("data added");
+        navigate('/login');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Box
-        sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'linear-gradient(45deg, #121212 30%, #2C2C2C 90%)',
-          backgroundSize: '400% 400%',
-          animation: 'gradient 15s ease infinite',
-          '@keyframes gradient': {
-            '0%': {
-              backgroundPosition: '0% 50%',
-            },
-            '50%': {
-              backgroundPosition: '100% 50%',
-            },
-            '100%': {
-              backgroundPosition: '0% 50%',
-            },
-          },
-        }}
-      >
-        <Container component="main" maxWidth="xs">
-          <motion.div
-            initial={{ opacity: 0, y: -50 }}
-            animate={{ opacity: 1, y: 0 }}
+    <>
+      <GlobalStyle />
+      <SignUpContainer>
+        <SignUpBox
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <IconWrapper
+            whileHover={{ rotate: 360 }}
             transition={{ duration: 0.5 }}
           >
-            <Box
-              sx={{
-                padding: 4,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                backgroundColor: 'background.paper',
-                borderRadius: 2,
-                boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
-              }}
+            <PersonAddIcon style={{ fontSize: 48, color: '#3498db' }} />
+          </IconWrapper>
+          <Typography variant="h5" component="h1" align="center" gutterBottom>
+            Sign up
+          </Typography>
+          <Form onSubmit={addData}>
+            <Input
+              type="text"
+              name="firstName"
+              placeholder="First Name"
+              required
+              value={input.firstName}
+              onChange={handleChange}
+            />
+            <Input
+              type="text"
+              name="lastName"
+              placeholder="Last Name"
+              required
+              value={input.lastName}
+              onChange={handleChange}
+            />
+            <FullWidthInput
+              type="email"
+              name="email"
+              placeholder="Email Address"
+              required
+              value={input.email}
+              onChange={handleChange}
+            />
+            <FullWidthInput
+              type="password"
+              name="password"
+              placeholder="Password"
+              required
+              value={input.password}
+              onChange={handleChange}
+            />
+            <Input
+              type="number"
+              name="age"
+              placeholder="Age"
+              required
+              value={input.age}
+              onChange={handleChange}
+            />
+            <Input
+              type="text"
+              name="gender"
+              placeholder="Gender"
+              required
+              value={input.gender}
+              onChange={handleChange}
+            />
+            <FullWidthInput
+              type="tel"
+              name="phone"
+              placeholder="Phone Number"
+              required
+              value={input.phone}
+              onChange={handleChange}
+            />
+            <Button
+              type="submit"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <motion.div
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.5 }}
-              >
-                <PersonAddIcon sx={{ m: 1, bgcolor: 'secondary.main', p: 2, borderRadius: '50%', color: 'background.paper' }} />
-              </motion.div>
-              <Typography component="h1" variant="h5">
-                Sign up
-              </Typography>
-              <Box component="form" onSubmit={addData} noValidate sx={{ mt: 3 }}>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      autoComplete="given-name"
-                      name="firstName"
-                      required
-                      fullWidth
-                      id="firstName"
-                      label="First Name"
-                      autoFocus
-                      value={input.firstName}
-                      onChange={handleChange}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      required
-                      fullWidth
-                      id="lastName"
-                      label="Last Name"
-                      name="lastName"
-                      autoComplete="family-name"
-                      value={input.lastName}
-                      onChange={handleChange}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      required
-                      fullWidth
-                      id="email"
-                      label="Email Address"
-                      name="email"
-                      autoComplete="email"
-                      value={input.email}
-                      onChange={handleChange}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      required
-                      fullWidth
-                      name="password"
-                      label="Password"
-                      type="password"
-                      id="password"
-                      autoComplete="new-password"
-                      value={input.password}
-                      onChange={handleChange}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      required
-                      fullWidth
-                      name="age"
-                      label="age"
-                      id="age"
-                      value={input.age}
-                      onChange={handleChange}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      required
-                      fullWidth
-                      name="gender"
-                      label="Gender"
-                      id="gender"
-                      value={input.gender}
-                      onChange={handleChange}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      required
-                      fullWidth
-                      name="phone"
-                      label="Phone Number"
-                      id="phone"
-                      value={input.phone}
-                      onChange={handleChange}
-                    />
-                  </Grid>
-
-                </Grid>
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    sx={{ mt: 3, mb: 2 }}
-                  >
-                    Sign Up
-                  </Button>
-                </motion.div>
-                <Grid container justifyContent="flex-end">
-                  <Grid item>
-                    <Link to={'/login'} className='custom-link' >
-                      Already have an account? Sign in
-                    </Link>
-                  </Grid>
-                </Grid>
-              </Box>
-            </Box>
+              Sign Up
+            </Button>
+          </Form>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+          >
+            <Typography variant="body2" align="center" style={{ marginTop: '1rem' }}>
+              Already have an account? <StyledLink to="/login">Sign In</StyledLink>
+            </Typography>
           </motion.div>
-        </Container>
-      </Box>
-    </ThemeProvider>
+        </SignUpBox>
+      </SignUpContainer>
+    </>
   );
 };
 

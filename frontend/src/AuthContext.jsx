@@ -9,17 +9,23 @@ export const AuthProvider = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [userId, setUserId] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  
   const navigate = useNavigate();
 
   useEffect(() => {
     // Check local storage when the AuthProvider mounts
     const storedLoginStatus = localStorage.getItem('isLoggedIn');
     const storedUserId = localStorage.getItem('sUserId');
+    const storedIsAdmin = localStorage.getItem('isAdmin');
+    
     if (storedLoginStatus === 'true') {
       setAuthenticated(true);
       setUserId(storedUserId);
       console.log("logged in auth context")
       console.log("USERNAME = " + userId)
+    }
+    if (storedIsAdmin === 'true') {
+      setIsAdmin(true);
     }
   }, []);
 
@@ -33,13 +39,14 @@ export const AuthProvider = ({ children }) => {
           console.log(response.data);
           console.log(email);
 
-          if (email === userId) {
+          if (email === userId || storedUserId) {
             console.log("email matched");
-            if (response.data.password === password) { // You need to store password in state or pass it to this function
+            if (response.data.password === password || localStorage.getItem('password')) { // You need to store password in state or pass it to this function
               console.log("password matched");
               setAuthenticated(true);
               localStorage.setItem('isLoggedIn', 'true');
               localStorage.setItem('sUserId',response.data.email);
+              localStorage.setItem('password', response.data.password);
 
               setUserId(email)
               if(response.data.role == 'user'){
@@ -48,6 +55,7 @@ export const AuthProvider = ({ children }) => {
               }
               else{
                 setIsAdmin(true);
+                localStorage.setItem('isAdmin','true')
                 navigate('/admin');
               }
             } else {
@@ -77,7 +85,9 @@ export const AuthProvider = ({ children }) => {
     setIsAdmin(false);
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('userId')
+    localStorage.removeItem('isAdmin');
     navigate('/');
+    
   };
 
   return (

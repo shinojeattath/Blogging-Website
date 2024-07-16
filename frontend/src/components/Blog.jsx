@@ -1,163 +1,200 @@
-import React from 'react';
-import { useLocation } from 'react-router-dom';
-import { ThemeProvider,   createTheme,   CssBaseline,  Container,  Typography,  Box,  Avatar, Divider,  Chip,  TextField,  Button,  List,  ListItem,  ListItemText,  ListItemAvatar} from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import styled, { createGlobalStyle } from 'styled-components';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
-import { useAuth } from '../AuthContext'
-import { useEffect } from 'react';
+import { useAuth } from '../AuthContext';
+import axios from 'axios';
 
-const theme = createTheme({
-  palette: {
-    mode: 'dark',
-    primary: {
-      main: '#BB86FC',
-    },
-    secondary: {
-      main: '#03DAC6',
-    },
-    background: {
-      default: '#121212',
-      paper: '#1E1E1E',
-    },
-  },
-  typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-  },
-});
+const GlobalStyle = createGlobalStyle`
+  body {
+    font-family: 'Roboto', sans-serif;
+    background-color: white;
+    color: #333;
+  }
+`;
 
-const fadeIn = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6 }
-};
+const PageContainer = styled(motion.div)`
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  padding-top:6rem;
+`;
 
-const BlogPostPage = (props) => {
-  
-  const { userId } = useAuth()
-  // Mock data for the blog post 
-  const post = {
-    title: "The Future of AI in Blogging",
-    author: {
-      name: "Jane Doe",
-      avatar: "https://source.unsplash.com/random?portrait",
-    },
-    date: "June 15, 2024",
-    content: `
-    Artificial Intelligence is revolutionizing the way we create and consume content. In the realm of blogging, AI is opening up new possibilities and challenges.
-    
-    One of the most significant impacts of AI on blogging is in content creation. AI-powered tools can now generate entire blog posts, suggest topics, and even optimize content for SEO. This has led to increased productivity for bloggers, allowing them to focus more on strategy and less on the nitty-gritty of writing.
-    
-    However, the rise of AI in blogging also raises important questions about authenticity and the value of human creativity. While AI can produce grammatically correct and informative content, it often lacks the personal touch and unique insights that human writers bring to their work.
-    
-    As we move forward, the key will be finding the right balance between leveraging AI tools to enhance our work and maintaining the human element that makes blogs engaging and relatable. The future of blogging will likely involve a symbiotic relationship between human creativity and AI assistance, rather than a complete takeover by machines.
-    
-    What are your thoughts on the role of AI in blogging? How do you see it shaping the future of content creation?
-    `,
-    tags: ["AI", "Blogging", "Technology", "Content Creation"],
-    comments: [
-      { author: "John Smith", content: "Great insights! I'm excited to see how AI will continue to evolve in the blogging world.", avatar: "https://source.unsplash.com/random?man" },
-      { author: "Emily Brown", content: "I agree that maintaining the human element is crucial. AI should enhance, not replace human creativity.", avatar: "https://source.unsplash.com/random?woman" }
-    ]
-  };
-  
-  // End dummy data
-  
-  const [editUser, setEditUser] = useState(false)
+const Title = styled.h1`
+  font-size: 2.5rem;
+  color: #007bff;
+  margin-bottom: 1rem;
+`;
 
+const AuthorInfo = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+`;
+
+const Avatar = styled.img`
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 1rem;
+`;
+
+const AuthorName = styled.span`
+  font-weight: bold;
+  margin-right: 1rem;
+`;
+
+const PostDate = styled.span`
+  color: #666;
+`;
+
+const Content = styled.p`
+  text-align: justify;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+`;
+
+const TagContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+`;
+
+const Tag = styled.span`
+  background: linear-gradient(to right, #007bff, #00bcd4);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+`;
+
+const Button = styled.button`
+  background: ${props => props.delete ? 'linear-gradient(to right, #ff3030, #ff0000)' : 'linear-gradient(to right, #007bff, #00bcd4)'};
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  border-radius: 20px;
+  cursor: pointer;
+  margin-right: 1rem;
+  transition: all 0.3s ease;
+  font-size: 15px;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+`;
+
+const CommentSection = styled.div`
+  margin-top: 2rem;
+`;
+
+const CommentTitle = styled.h2`
+  font-size: 1.5rem;
+  color: #007bff;
+  margin-bottom: 1rem;
+`;
+
+const CommentList = styled.ul`
+  list-style-type: none;
+  padding: 0;
+`;
+
+const CommentItem = styled.li`
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+`;
+
+const CommentAuthor = styled.span`
+  font-weight: bold;
+`;
+
+const CommentForm = styled.form`
+  margin-top: 2rem;
+`;
+
+const CommentInput = styled.textarea`
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  margin-bottom: 1rem;
+`;
+
+const BlogPostPage = () => {
+  const { userId, isAdmin } = useAuth();
+  const [editUser, setEditUser] = useState(false);
+  const [postData, setPostData] = useState(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
-  if(location.state){
-    console.log("blogpage data",location.state.post);
-  }
-  else{
-    console.log("No post data found");
-  }
-
-  
   useEffect(() => {
-    if(location.state){
-      console.log("blogpage data",location.state.post);
-    }
-    else{
+    if (location.state?.post) {
+      setPostData(location.state.post);
+      setEditUser(location.state.post.email === userId);
+    } else {
       console.log("No post data found");
+      navigate('/');
     }
-  
-    if(location.state.post.email == userId){
-      setEditUser(true)
-      console.log("Auther of the post")
-    }
-    
-  },[ userId])
+  }, [location.state, userId, navigate]);
 
-  const currentUserBlog = true
- 
-  
+  const handleEdit = () => {
+    navigate('/addBlog', { state: { post: postData, isEditing: true } });
+  };
+
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`http://127.0.0.1:5050/deleteBlog/${postData._id}`);
+      navigate('/profile');
+    } catch (error) {
+      console.error("Error deleting blog:", error);
+    }
+  };
+
+  if (!postData) return null;
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Container maxWidth="md" sx={{ py: 8 }}>
-        <motion.div {...fadeIn}>
-          <Typography variant="h2" component="h1" gutterBottom>
-            {location.state.post.title}
-          </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-            <Avatar src={post.author.avatar} sx={{ mr: 2 }} />
-            <Typography variant="subtitle1" sx={{ mr: 2 }}>
-              {location.state.post.firstName} {location.state.post.lastName}
-            </Typography>
-            <Typography variant="subtitle2" color="text.secondary">
-              {location.state.post.created_at}
-            </Typography>
-          </Box>
-          <Typography variant="body1" paragraph>
-            {location.state.post.content}
-          </Typography>
-          <Box sx={{ mb: 4 }}>
-            {post.tags.map((tag, index) => (
-              <Chip key={index} label={tag} sx={{ mr: 1, mb: 1 }} />
+    <>
+      <GlobalStyle />
+      <PageContainer
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <Title>{postData.title}</Title>
+        <AuthorInfo>
+          <Avatar src={postData.avatar || "https://source.unsplash.com/random?portrait"} alt="Author" />
+          <AuthorName>{`${postData.firstName} ${postData.lastName}`}</AuthorName>
+          <PostDate>{new Date(postData.created_at).toLocaleDateString()}</PostDate>
+        </AuthorInfo>
+        <Content>{postData.content}</Content>
+        <TagContainer>
+          {postData.tags?.map((tag, index) => (
+            <Tag key={index}>{tag}</Tag>
+          ))}
+        </TagContainer>
+        {editUser && <Button onClick={handleEdit}>Edit Blog</Button>}
+        {(editUser || isAdmin) && <Button delete onClick={handleDelete}>Delete</Button>}
+        <CommentSection>
+          <CommentTitle>Comments</CommentTitle>
+          <CommentList>
+            {postData.comments?.map((comment, index) => (
+              <CommentItem key={index}>
+                <CommentAuthor>{comment.author}: </CommentAuthor>
+                {comment.content}
+              </CommentItem>
             ))}
-          </Box>
-           {(editUser && <Button variant="contained" color="primary">
-              Edit Blog
-            </Button>)}
-          <Divider sx={{ my: 4 }} />
-          <Typography variant="h5" gutterBottom>
-            Comments
-          </Typography>
-          <List>
-            {post.comments.map((comment, index) => (
-              <ListItem key={index} alignItems="flex-start">
-                <ListItemAvatar>
-                  <Avatar src={comment.avatar} />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={comment.author}
-                  secondary={comment.content}
-                />
-              </ListItem>
-            ))}
-          </List>
-          {currentUserBlog && (
-          <Box component="form" noValidate sx={{ mt: 4 }}>
-            <TextField
-              fullWidth
-              id="comment"
-              label="Add a comment"
-              multiline
-              rows={4}
-              variant="outlined"
-              sx={{ mb: 2 }}
-            />
-            <Button variant="contained" color="primary">
-              Post Comment
-            </Button>
-          </Box>
-          )}
-
-        </motion.div>
-      </Container>
-    </ThemeProvider>
+          </CommentList>
+          <CommentForm>
+            <CommentInput rows="4" placeholder="Add a comment" />
+            <Button type="submit">Post Comment</Button>
+          </CommentForm>
+        </CommentSection>
+      </PageContainer>
+    </>
   );
 };
 

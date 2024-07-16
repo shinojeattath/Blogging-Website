@@ -24,7 +24,14 @@ const schema = mongoose.Schema({
     created_at:{type: String,
         required: true
     },
-   
+    likes:{
+        type: Number,
+        default: 0
+    },
+    comments:{
+        type: Array,
+        default: []
+    }, 
 })
 
 const userModel = mongoose.model('userBlog', schema)

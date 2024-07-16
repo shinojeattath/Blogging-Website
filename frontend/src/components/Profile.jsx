@@ -1,28 +1,99 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Container, 
-  Box, 
-  Typography, 
-  TextField, 
-  Button, 
-  Avatar,
-  Grid,
-  Paper,
-  Divider,
-  ThemeProvider,
-  createTheme,
-  CssBaseline,
-  Card,
-  CardActionArea,
-  CardMedia,
-  CardContent
-  
-} from '@mui/material';
+import { Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useAuth } from '../AuthContext';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import styled, { createGlobalStyle } from 'styled-components';
+import PersonIcon from '@mui/icons-material/Person';
 
+const GlobalStyle = createGlobalStyle`
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(180deg, hsla(0, 0%, 99%, 1) 0%, hsla(186, 100%, 92%, 1) 100%);
+    margin: 0;
+    padding: 0;
+    color: #333;
+  }
+`;
+
+const ProfileContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  padding-top: calc(20vh); // Add top padding to account for navbar
+  min-height: calc(80vh); // Ensure the container takes up the full height minus navbar
+  box-sizing: border-box;
+`;
+
+const ProfileHeader = styled(motion.div)`
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+`;
+
+const Avatar = styled.div`
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: #3498db;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 2rem;
+`;
+
+const UserInfo = styled.div`
+  flex: 1;
+`;
+
+const ProfileContent = styled(motion.div)`
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+`;
+
+const Button = styled(motion.button)`
+  padding: 0.8rem 1.5rem;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+`;
+
+const BlogGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+`;
+
+const BlogCard = styled(motion.div)`
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+`;
+
+const BlogImage = styled.img`
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+`;
+
+const BlogContent = styled.div`
+  padding: 1rem;
+`;
+
+const StyledLink = styled(Link)`
+  text-decoration: none;
+  color: inherit;
+`;
 
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
@@ -30,185 +101,92 @@ const fadeIn = {
   transition: { duration: 0.6 }
 };
 
-
-const theme = createTheme({
-  palette: {
-    mode: 'dark',
-    primary: {
-      main: '#BB86FC',
-    },
-    secondary: {
-      main: '#03DAC6',
-    },
-    background: {
-      default: '#121212',
-      paper: '#1E1E1E',
-    },
-  },
-  typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-  },
-});
-
 const ProfilePage = () => {
-
   const { userId } = useAuth();
-  const [profileData, setProfileData] = useState(null)
-  const editing = false
-  const [firstName, setFirstName] = useState("Guest")
-  const [lastName, setLastName] = useState("User")
-  const [userBlogs, setUserBlogs] = useState([])
-
+  const [profileData, setProfileData] = useState(null);
+  const [userBlogs, setUserBlogs] = useState([]);
 
   useEffect(() => {
-    const fetchData = async() =>{
-
-      if(userId){
-        const response = await axios.get(`http://localhost:5050/get`, {params:{email: userId}})
+    const fetchData = async () => {
+      if (userId) {
         try {
-          
-          console.log("got userid")
-          console.log("Profile Data", response.data)
+          const response = await axios.get(`http://localhost:5050/get`, { params: { email: userId } });
           setProfileData(response.data);
-          setFirstName(response.data.firstName)
-          setLastName(response.data.lastName)
-          console.log("profiledata" + profileData)
         } catch (error) {
-          console.log("error fetrching ",error)
+          console.log("Error fetching profile data:", error);
         }
       }
-    }
-    fetchData()
-
-
-  },[userId])
+    };
+    fetchData();
+  }, [userId]);
 
   useEffect(() => {
     const fetchUserBlogs = async () => {
-      try {
-        if (userId) {
+      if (userId) {
+        try {
           const response = await axios.get('http://localhost:5050/getUserBlog', { params: { email: userId } });
-          console.log("got blogs");
-          console.log("User Blogs", response.data);
-          // Ensure we're setting an array
           setUserBlogs(Array.isArray(response.data) ? response.data : []);
+        } catch (error) {
+          console.log("Error fetching blogs:", error);
+          setUserBlogs([]);
         }
-      } catch (error) {
-        console.log("error fetching blogs", error);
-        setUserBlogs([]); // Set to empty array in case of error
       }
     };
-  
     fetchUserBlogs();
-  }, [userId]); // Add userId as a dependency
-
-
-
-
-  console.log("Profile dataaaaa",profileData)
-  const handleChange = (e) => {
-    setProfileData({
-      ...profileData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    axios.put(`http://localhost:5050/user/${user.id}`, profileData)
-      .then(response => {
-        setUser({
-          ...user,
-          ...response.data
-        });
-        setEditing(false);
-      })
-      .catch(error => console.error('Error updating profile:', error));
-  };
+  }, [userId]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Container component="main" maxWidth="md">
-        <motion.div
+    <>
+      <GlobalStyle />
+      <ProfileContainer>
+        <ProfileHeader
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={4}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <Avatar
-                      sx={{ width: 120, height: 120, mb: 2 }}
-                      src='/default-avatar.png'
-                    />
-                    <Typography variant="h5">{firstName} {lastName}</Typography>
-                  </Box>
-                </Grid>
-                <Grid item xs={12} sm={8}>
-                  
-                  
-                    <>
-                      <Typography variant="body1"><strong>Email:</strong> {userId}</Typography>
-                      <Divider sx={{ my: 2 }} />
-                      <Typography variant="body1"><strong>Bio:</strong></Typography>
-                      <Typography variant="body2" sx={{ mt: 1 }}>No bio provided.</Typography>
-                      <Box sx={{ mt: 2 }}>
-                        <Button variant="contained" color="primary" onClick={() => setEditing(true)}>
-                          Edit Profile
-                        </Button>
-                      </Box>
-                    </>
-                  
-                </Grid>
-              </Grid>
-            </Paper>
-          </Box>
-        </motion.div>
-        <motion.div {...fadeIn}>
-          <br/>
-            <Typography variant="h4" gutterBottom>
-               Posts
-            </Typography>
+          <Avatar>
+            <PersonIcon style={{ fontSize: 60, color: 'white' }} />
+          </Avatar>
+          <UserInfo>
+            <Typography variant="h4">{profileData?.firstName} {profileData?.lastName}</Typography>
+            <Typography variant="body1">{userId}</Typography>
+          </UserInfo>
+        </ProfileHeader>
 
-            <Grid container spacing={4}>
-            {Array.isArray(userBlogs) && userBlogs.length > 0 ? (
-  userBlogs.map((post, index) => (
-    <Grid item key={index} xs={12} sm={6} md={4}>
-      <Link to={`/blog/${post._id}`} state={{post:post}} >
-      <Card>
-        <CardActionArea>
-          <CardMedia
-            component="img"
-            height="140"
-            image='https://img.freepik.com/free-photo/toy-bricks-table_144627-48267.jpg'
-            alt={post.title}
-          />
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="div">
-              {post.title}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {post.date}
-            </Typography>
-          </CardContent>
-        </CardActionArea>
-      </Card>
-      </Link>
-    </Grid>
-  ))
-) : (
-  <Typography>No blogs found</Typography>
-)}
-            </Grid>
+        <ProfileContent {...fadeIn}>
+          <Typography variant="h6">Bio</Typography>
+          <Typography variant="body1">No bio provided.</Typography>
+          <Button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Edit Profile
+          </Button>
 
-
-          
-          </motion.div>
-      </Container>
-    </ThemeProvider>
+          <Typography variant="h5" style={{ marginTop: '2rem', marginBottom: '1rem' }}>Posts</Typography>
+          <BlogGrid>
+            {userBlogs.length > 0 ? (
+              userBlogs.map((post, index) => (
+                <StyledLink to={`/blog/${post._id}`} state={{ post: post }} key={index}>
+                  <BlogCard
+                    whileHover={{ y: -5 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <BlogImage src='https://img.freepik.com/free-photo/toy-bricks-table_144627-48267.jpg' alt={post.title} />
+                    <BlogContent>
+                      <Typography variant="h6">{post.title}</Typography>
+                      <Typography variant="body2" color="textSecondary">{post.date}</Typography>
+                    </BlogContent>
+                  </BlogCard>
+                </StyledLink>
+              ))
+            ) : (
+              <Typography>No blogs found</Typography>
+            )}
+          </BlogGrid>
+        </ProfileContent>
+      </ProfileContainer>
+    </>
   );
 };
 
