@@ -24,6 +24,10 @@ const schema = mongoose.Schema({
     created_at:{type: String,
         required: true
     },
+    avatar:{
+        type: String,
+        default: ''
+    },
     likes:{
         type: Number,
         default: 0

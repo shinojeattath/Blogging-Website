@@ -172,7 +172,7 @@ const ProfilePage = () => {
                     whileHover={{ y: -5 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <BlogImage src='https://img.freepik.com/free-photo/toy-bricks-table_144627-48267.jpg' alt={post.title} />
+                    <BlogImage src='cat.jpg' alt={post.title} />
                     <BlogContent>
                       <Typography variant="h6">{post.title}</Typography>
                       <Typography variant="body2" color="textSecondary">{post.date}</Typography>

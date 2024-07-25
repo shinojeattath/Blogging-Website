@@ -1,30 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { 
-  Box, 
-  Container, 
-  Typography, 
-  Paper, 
-  Grid, 
-  Button,
-  ThemeProvider,
-  createTheme,
-  CssBaseline,
-  AppBar,
-  Toolbar,
-  IconButton,
-  Drawer,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from '@mui/material';
+import styled, { createGlobalStyle } from 'styled-components';
 import { 
   Dashboard as DashboardIcon, 
   People as PeopleIcon, 
@@ -38,40 +14,141 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../AuthContext';
 import axios from 'axios';
 
-const darkTheme = createTheme({
-  palette: {
-    mode: 'dark',
-    primary: {
-      main: '#90caf9',
-    },
-    background: {
-      default: '#121212',
-      paper: '#1e1e1e',
-    },
-  },
-});
+const GlobalStyle = createGlobalStyle`
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: hsla(0, 0%, 99%, 1);
+    background: linear-gradient(180deg, hsla(0, 0%, 99%, 1) 0%, hsla(186, 100%, 92%, 1) 100%);
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+  }
+`;
 
+const AdminContainer = styled.div`
+  display: flex;
+  min-height: 100vh;
+`;
+
+const Sidebar = styled.nav`
+  min-height: 10vh;
+  width: 240px;
+  background: linear-gradient(to bottom, #000424, #00bcd4);
+  color: white;
+  padding-top: 1px;  // Reduced from 60px to accommodate the logo
+  z-index:1001;
+`;
+
+const SidebarItem = styled.div`
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+`;
+
+const SidebarText = styled.span`
+  margin-left: 10px;
+`;
+
+const Content = styled.main`
+  flex-grow: 1;
+  padding: 20px;
+  padding-top: 80px;
+`;
+
+const Header = styled.header`
+  background: linear-gradient(to right, #000430, #00bcd4);
+  color: white;
+  padding: 15px 250px;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const HeaderTitle = styled.h1`
+  margin: 0;
+  font-size: 1.5rem;
+`;
+
+const StyledTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+`;
+
+const StyledTh = styled.th`
+  background-color: #f8f9fa;
+  padding: 12px;
+  text-align: left;
+  border-bottom: 2px solid #dee2e6;
+`;
+
+const StyledTd = styled.td`
+  padding: 12px;
+  border-bottom: 1px solid #dee2e6;
+`;
+
+const StyledButton = styled.button`
+  background: linear-gradient(to right, #ff3030, #ff0000);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.3s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+`;
+
+const StyledLink = styled(Link)`
+  color: #007bff;
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const LogoContainer = styled.div`
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+`;
+
+const Logo = styled.img`
+  width: 180px;  // Adjust size as needed
+  height: auto;
+  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+`;
 const AdminDashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [mobileOpen, setMobileOpen] = useState(false);
   const { logout } = useAuth();
-
-  const [activePage, setActivePage] = useState(() => {
-    const params = new URLSearchParams(location.search);
-    return params.get('page') || 'dashboard';
-  });
+  const [activePage, setActivePage] = useState('dashboard');
 
   useEffect(() => {
-    navigate(`?page=${activePage}`, { replace: true });
-  }, [activePage, navigate]);
-
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
+    const params = new URLSearchParams(location.search);
+    setActivePage(params.get('page') || 'dashboard');
+  }, [location]);
 
   const handlePageChange = (page) => {
     setActivePage(page);
+    navigate(`?page=${page}`, { replace: true });
   };
 
   const handleLogout = () => {
@@ -80,38 +157,8 @@ const AdminDashboard = () => {
   };
 
   const handleHomeClick = () => {
-    navigate('/');  // Navigate to the home page
+    navigate('/');
   };
-
-  const drawer = (
-    <div>
-      <Toolbar />
-      <List>
-        <ListItem button onClick={handleHomeClick}>
-          <ListItemIcon>
-            <HomeIcon />
-          </ListItemIcon>
-          <ListItemText primary="Home" />
-        </ListItem>
-        {['Dashboard', 'Users', 'Blogs'].map((text, index) => (
-          <ListItem button key={text} onClick={() => handlePageChange(text.toLowerCase())}>
-            <ListItemIcon>
-              {index === 0 ? <DashboardIcon /> : 
-               index === 1 ? <PeopleIcon /> : 
-               <BookIcon />}
-            </ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-        <ListItem button onClick={handleLogout}>
-          <ListItemIcon>
-            <LogoutIcon />
-          </ListItemIcon>
-          <ListItemText primary="Logout" />
-        </ListItem>
-      </List>
-    </div>
-  );
 
   const renderContent = () => {
     switch (activePage) {
@@ -127,63 +174,42 @@ const AdminDashboard = () => {
   };
 
   return (
-    <ThemeProvider theme={darkTheme}>
-      <CssBaseline />
-      <Box sx={{ display: 'flex' }}>
-        <AppBar position="fixed">
-          <Toolbar>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="start"
-              onClick={handleDrawerToggle}
-              sx={{ mr: 2, display: { sm: 'none' } }}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography variant="h6" noWrap component="div">
-              Admin Dashboard
-            </Typography>
-          </Toolbar>
-        </AppBar>
-        <Box
-          component="nav"
-          sx={{ width: { sm: 240 }, flexShrink: { sm: 0 } }}
-        >
-          <Drawer
-            variant="temporary"
-            open={mobileOpen}
-            onClose={handleDrawerToggle}
-            ModalProps={{
-              keepMounted: true,
-            }}
-            sx={{
-              display: { xs: 'block', sm: 'none' },
-              '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
-            }}
-          >
-            {drawer}
-          </Drawer>
-          <Drawer
-            variant="permanent"
-            sx={{
-              display: { xs: 'none', sm: 'block' },
-              '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
-            }}
-            open
-          >
-            {drawer}
-          </Drawer>
-        </Box>
-        <Box
-          component="main"
-          sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - 240px)` } }}
-        >
-          <Toolbar />
+    <>
+      <GlobalStyle />
+      <AdminContainer>
+        <Sidebar>
+          <SidebarItem>
+            <Logo src="blogcast.png" alt="logo" />
+          </SidebarItem>
+          <SidebarItem onClick={handleHomeClick}>
+            <HomeIcon />
+            <SidebarText>Home</SidebarText>
+          </SidebarItem>
+          <SidebarItem onClick={() => handlePageChange('dashboard')}>
+            <DashboardIcon />
+            <SidebarText>Dashboard</SidebarText>
+          </SidebarItem>
+          <SidebarItem onClick={() => handlePageChange('users')}>
+            <PeopleIcon />
+            <SidebarText>Users</SidebarText>
+          </SidebarItem>
+          <SidebarItem onClick={() => handlePageChange('blogs')}>
+            <BookIcon />
+            <SidebarText>Blogs</SidebarText>
+          </SidebarItem>
+          <SidebarItem onClick={handleLogout}>
+            <LogoutIcon />
+            <SidebarText>Logout</SidebarText>
+          </SidebarItem>
+        </Sidebar>
+        <Content>
+          <Header>
+            <HeaderTitle>Admin Dashboard</HeaderTitle>
+          </Header>
           {renderContent()}
-        </Box>
-      </Box>
-    </ThemeProvider>
+        </Content>
+      </AdminContainer>
+    </>
   );
 };
 
@@ -194,18 +220,14 @@ const DashboardContent = () => {
   useEffect(() => {
     axios.get('http://127.0.0.1:5050/getUser')
       .then((response) => {
-        console.log("dashboard data", response.data);
         setNoOfUsers(response.data.length);
       })
       .catch((error) => {
         console.log("error" + error);
       });
-  }, []);
 
-  useEffect(() => {
     axios.get('http://127.0.0.1:5050/getBlog')
       .then((response) => {
-        console.log("dashboard data", response.data);
         setNoOfPosts(response.data.length);
       })
       .catch((error) => {
@@ -219,37 +241,17 @@ const DashboardContent = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Typography variant="h4" gutterBottom>
-        Dashboard Overview
-      </Typography>
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={6} md={4}>
-          <Paper
-            sx={{
-              p: 2,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-            }}
-          >
-            <Typography variant="h6">Total Users</Typography>
-            <Typography variant="h3">{noOfUsers}</Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <Paper
-            sx={{
-              p: 2,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-            }}
-          >
-            <Typography variant="h6">Total Blogs</Typography>
-            <Typography variant="h3">{noOfPosts}</Typography>
-          </Paper>
-        </Grid>
-      </Grid>
+      <h2>Dashboard Overview</h2>
+      <div style={{ display: 'flex', gap: '20px' }}>
+        <div style={{ background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,.1)', flex: 1 }}>
+          <h3>Total Users</h3>
+          <p style={{ fontSize: '2rem', fontWeight: 'bold' }}>{noOfUsers}</p>
+        </div>
+        <div style={{ background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,.1)', flex: 1 }}>
+          <h3>Total Blogs</h3>
+          <p style={{ fontSize: '2rem', fontWeight: 'bold' }}>{noOfPosts}</p>
+        </div>
+      </div>
     </motion.div>
   );
 };
@@ -260,7 +262,6 @@ const UsersContent = () => {
   useEffect(() => {
     axios.get('http://127.0.0.1:5050/getUser')
       .then((response) => {
-        console.log(response.data);
         setUserData(response.data);
       })
       .catch((error) => {
@@ -269,11 +270,9 @@ const UsersContent = () => {
   }, []);
 
   const handleDelete = (userId) => {
-    // Implement delete functionality 
     axios.delete(`http://127.0.0.1:5050/deleteUser/${userId}`)
       .then((response) => {
         console.log("user deleted");
-        // Remove the deleted user from the state
         window.location.reload();
       })
       .catch((error) => {
@@ -287,44 +286,31 @@ const UsersContent = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Typography variant="h4" gutterBottom>
-        User Management
-      </Typography>
-      <Box display="flex">
-        <TableContainer component={Paper} sx={{ flexGrow: 2 }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {userData.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>
-                    <Link className='custom-link' to={'/profile'}>
-                      {user.firstName}&nbsp;{user.lastName}
-                    </Link>
-                  </TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell align="right">
-                    <Button
-                      variant="contained"
-                      color="error"
-                      startIcon={<DeleteIcon />}
-                      onClick={() => handleDelete(user._id)}
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
+      <h2>User Management</h2>
+      <StyledTable>
+        <thead>
+          <tr>
+            <StyledTh>Name</StyledTh>
+            <StyledTh>Email</StyledTh>
+            <StyledTh>Actions</StyledTh>
+          </tr>
+        </thead>
+        <tbody>
+          {userData.map((user) => (
+            <tr key={user._id}>
+              <StyledTd>
+                <StyledLink to={'/profile'}>{user.firstName} {user.lastName}</StyledLink>
+              </StyledTd>
+              <StyledTd>{user.email}</StyledTd>
+              <StyledTd>
+                <StyledButton onClick={() => handleDelete(user._id)}>
+                  <DeleteIcon /> Delete
+                </StyledButton>
+              </StyledTd>
+            </tr>
+          ))}
+        </tbody>
+      </StyledTable>
     </motion.div>
   );
 };
@@ -335,7 +321,6 @@ const BlogsContent = () => {
   useEffect(() => {
     axios.get('http://127.0.0.1:5050/getBlog')
       .then((response) => {
-        console.log("dashboard data", response.data);
         setAdminBlogs(response.data);
       })
       .catch((error) => {
@@ -347,7 +332,6 @@ const BlogsContent = () => {
     axios.delete(`http://127.0.0.1:5050/deleteBlog/${blogId}`)
       .then((response) => {
         console.log("blog deleted");
-        // Remove the deleted blog from the state
         window.location.reload();
       })
       .catch((error) => {
@@ -365,46 +349,37 @@ const BlogsContent = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Typography variant="h4" gutterBottom>
-        Blog Management
-      </Typography>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Title</TableCell>
-              <TableCell>Content</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {adminBlogs.map((blog) => (
-              <TableRow key={blog._id}>
-                <TableCell>{truncate(blog.firstName, 20)} {blog.lastName}</TableCell>
-                <TableCell>{truncate(blog.email, 20)}</TableCell>
-                <TableCell>
-                  <Link className='custom-link' to={`/blog/${blog._id}`} state={{ post: blog }}>
-                    {truncate(blog.title, 30)}
-                  </Link>
-                </TableCell>
-                <TableCell>{truncate(blog.content, 50)}</TableCell>
-                <TableCell align="right">
-                  <Button
-                    variant="contained"
-                    color="error"
-                    startIcon={<DeleteIcon />}
-                    onClick={() => handleDelete(blog._id)}
-                  >
-                    Delete
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <h2>Blog Management</h2>
+      <StyledTable>
+        <thead>
+          <tr>
+            <StyledTh>Name</StyledTh>
+            <StyledTh>Email</StyledTh>
+            <StyledTh>Title</StyledTh>
+            <StyledTh>Content</StyledTh>
+            <StyledTh>Actions</StyledTh>
+          </tr>
+        </thead>
+        <tbody>
+          {adminBlogs.map((blog) => (
+            <tr key={blog._id}>
+              <StyledTd>{truncate(`${blog.firstName} ${blog.lastName}`, 20)}</StyledTd>
+              <StyledTd>{truncate(blog.email, 20)}</StyledTd>
+              <StyledTd>
+                <StyledLink to={`/blog/${blog._id}`} state={{ post: blog }}>
+                  {truncate(blog.title, 30)}
+                </StyledLink>
+              </StyledTd>
+              <StyledTd>{truncate(blog.content, 50)}</StyledTd>
+              <StyledTd>
+                <StyledButton onClick={() => handleDelete(blog._id)}>
+                  <DeleteIcon /> Delete
+                </StyledButton>
+              </StyledTd>
+            </tr>
+          ))}
+        </tbody>
+      </StyledTable>
     </motion.div>
   );
 };

@@ -146,7 +146,7 @@ const AddBlogPage = () => {
       const response = await method(url, newBlog);
       console.log(response.data);
       console.log(isEditing ? "Blog updated" : "Blog data added", newBlog);
-      navigate('/');
+      isEditing ? navigate(`/blog/${newBlog._id}`) : navigate('/profile') 
     } catch (error) {
       console.log(error);
     }

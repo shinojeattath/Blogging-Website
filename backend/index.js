@@ -2,9 +2,11 @@
 const express = require('express')
 const cors = require('cors')
 require('./connection')
+const multer = require('multer');
+const path = require('path');
+const bodyParser = require('body-parser');
 
 const app = express()
-app.use(cors())
 
 // models
 var user = require('./models/user')
@@ -13,22 +15,69 @@ var userBlog = require('./models/userBlog')
 
 // middleware
 
+app.use(cors())
 app.use(express.json())
+app.use(bodyParser.urlencoded({ extended: true }));
+
+
+// directory
+
+const fs = require('fs');
+const dir = './uploads';
+
+if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+}
+
 
 // post API
 
-
-// Login API
-app.post('/post', async(req,res) => {
-    try {
-        await user(req.body).save()
-        res.send('Data saved')
-        console.log("data stored") 
-    } catch (error) {
-        console.log(error)
-        res.send('Data not saved\n' + error)
+// Multer setup
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/');
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname));
     }
-})
+});
+
+const upload = multer({ storage: storage });
+
+
+// Signup API
+
+
+app.post('/post', upload.single('profilePhoto'), async (req, res) => {
+    console.log('Received data:', req.body);
+    console.log('Received file:', req.file);
+
+    try {
+        const userData = {
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            email: req.body.email,
+            password: req.body.password,
+            age: req.body.age ? parseInt(req.body.age) : undefined,
+            gender: req.body.gender,
+            phone: req.body.phone,
+            role: req.body.role || 'user',
+            profilePhoto: req.file ? req.file.path : undefined
+        };
+
+        console.log('Processed userData:', userData);
+
+        const newUser = new user(userData);
+        await newUser.save();
+        
+        res.status(200).send('Data saved');
+        console.log("data stored");
+    } catch (error) {
+        console.log('Error:', error);
+        res.status(400).send('Data not saved\n' + error.message);
+    }
+});
+
 
 // Blog post API
 app.post('/postBlog', async(req,res) => {

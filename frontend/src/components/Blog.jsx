@@ -124,12 +124,96 @@ const CommentInput = styled.textarea`
   margin-bottom: 1rem;
 `;
 
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, .8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+  background: linear-gradient(to right, #f8f9fa, #e9ecef);
+  padding: 4rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  animation: ${props => props.isClosing ? 'zoomOut' : 'zoomIn'} 0.3s ease-in-out;
+
+  @keyframes zoomIn {
+    from {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes zoomOut {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+  }
+`;
+
+const ModalTitle = styled.h2`
+  color: #343a40;
+  margin-bottom: 1rem;
+`;
+
+const ModalButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+`;
+
+const DeleteConfirmationModal = ({ isOpen, onConfirm, onCancel }) => {
+  const [isClosing, setIsClosing] = useState(false);
+
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsClosing(false);
+      onCancel();
+    }, 300);
+  };
+
+  if (!isOpen && !isClosing) return null;
+
+  return (
+    <ModalOverlay>
+      <ModalContent isClosing={isClosing}>
+        <ModalTitle>Confirm Delete</ModalTitle>
+        <p>Are you sure you want to delete this blog post?</p>
+        <ModalButtonContainer>
+          <Button delete onClick={onConfirm}>Delete</Button>
+          <Button onClick={handleClose}>Cancel</Button>
+        </ModalButtonContainer>
+      </ModalContent>
+    </ModalOverlay>
+  );
+};
+
 const BlogPostPage = () => {
   const { userId, isAdmin } = useAuth();
   const [editUser, setEditUser] = useState(false);
   const [postData, setPostData] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     if (location.state?.post) {
@@ -145,13 +229,22 @@ const BlogPostPage = () => {
     navigate('/addBlog', { state: { post: postData, isEditing: true } });
   };
 
-  const handleDelete = async () => {
+  const handleDeleteClick = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
     try {
       await axios.delete(`http://127.0.0.1:5050/deleteBlog/${postData._id}`);
+      setIsDeleteModalOpen(false);
       navigate('/profile');
     } catch (error) {
       console.error("Error deleting blog:", error);
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteModalOpen(false);
   };
 
   if (!postData) return null;
@@ -177,7 +270,7 @@ const BlogPostPage = () => {
           ))}
         </TagContainer>
         {editUser && <Button onClick={handleEdit}>Edit Blog</Button>}
-        {(editUser || isAdmin) && <Button delete onClick={handleDelete}>Delete</Button>}
+        {(editUser || isAdmin) && <Button delete onClick={handleDeleteClick}>Delete</Button>}
         <CommentSection>
           <CommentTitle>Comments</CommentTitle>
           <CommentList>
@@ -194,6 +287,11 @@ const BlogPostPage = () => {
           </CommentForm>
         </CommentSection>
       </PageContainer>
+      <DeleteConfirmationModal 
+        isOpen={isDeleteModalOpen}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+      />
     </>
   );
 };

@@ -8,8 +8,6 @@ export const AuthProvider = ({ children }) => {
   const [authenticated, setAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [userId, setUserId] = useState('');
-  const [submitted, setSubmitted] = useState(false);
-  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,62 +19,39 @@ export const AuthProvider = ({ children }) => {
     if (storedLoginStatus === 'true') {
       setAuthenticated(true);
       setUserId(storedUserId);
-      console.log("logged in auth context")
-      console.log("USERNAME = " + userId)
     }
     if (storedIsAdmin === 'true') {
       setIsAdmin(true);
     }
   }, []);
 
-  useEffect(() => {
-    
-      // Your login logic here
-      axios.get('http://localhost:5050/get', { params: { email: userId } })
-        .then((response) => {
-          const email = response.data.email;
-          const password = response.data.password;
-          console.log(response.data);
-          console.log(email);
+  const login = async (email, password) => {
+    try {
+      const response = await axios.get('http://localhost:5050/get', { params: { email } });
+      const userData = response.data;
 
-          if (email === userId || storedUserId) {
-            console.log("email matched");
-            if (response.data.password === password || localStorage.getItem('password')) { // You need to store password in state or pass it to this function
-              console.log("password matched");
-              setAuthenticated(true);
-              localStorage.setItem('isLoggedIn', 'true');
-              localStorage.setItem('sUserId',response.data.email);
-              localStorage.setItem('password', response.data.password);
+      if (userData.email === email && userData.password === password) {
+        setAuthenticated(true);
+        setUserId(email);
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('sUserId', email);
+        localStorage.setItem('password', password);
 
-              setUserId(email)
-              if(response.data.role == 'user'){
-                setIsAdmin(false);
-                navigate('/');  
-              }
-              else{
-                setIsAdmin(true);
-                localStorage.setItem('isAdmin','true')
-                navigate('/admin');
-              }
-            } else {
-              console.log("password not matched");
-            }
-          } else {
-            console.log("email not matched");
-          }
-        })
-        .catch((error) => {
-          console.log("error" + error);
-        })
-        .finally(() => {
-          setSubmitted(false);
-        });
-    
-  }, [submitted]);
-
-  const login = (email, password) => {
-    setUserId(email);
-    setSubmitted(true);
+        if (userData.role === 'user') {
+          setIsAdmin(false);
+          navigate('/');
+        } else {
+          setIsAdmin(true);
+          localStorage.setItem('isAdmin', 'true');
+          navigate('/admin');
+        }
+      } else {
+        throw new Error('Invalid credentials');
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      throw error; // Re-throw the error to be caught in the SignIn component
+    }
   };
 
   const logout = () => {
@@ -84,10 +59,9 @@ export const AuthProvider = ({ children }) => {
     setUserId('');
     setIsAdmin(false);
     localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userId')
+    localStorage.removeItem('userId');
     localStorage.removeItem('isAdmin');
     navigate('/');
-    
   };
 
   return (

@@ -5,7 +5,7 @@ import styled, { createGlobalStyle } from 'styled-components';
 import { Typography } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useAuth } from '../AuthContext';
-
+import { DotWave, ChaoticOrbit } from '@uiball/loaders';
 const GlobalStyle = createGlobalStyle`
   body {
     font-family: 'Roboto', sans-serif;
@@ -15,6 +15,20 @@ const GlobalStyle = createGlobalStyle`
     color: #333;
   }
 `;
+
+const LoadingOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
 
 const LoginContainer = styled.div`
   display: flex;
@@ -112,17 +126,47 @@ const ButtonContent = styled.span`
   z-index: 1;
 `;
 
+const ErrorMessage = styled.p`
+  color: #e74c3c;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  text-align: center;
+`;
+
 const SignIn = () => {
   const [input, setInput] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
   const { login } = useAuth();
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const handleChange = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
+    setError(''); // Clear error when user starts typing
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setIsLoading(true);
+      await login(input.email, input.password);
+      // If login is successful, the AuthContext will handle navigation
+    } catch (error) {
+      setError('Invalid email or password. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <>
       <GlobalStyle />
+      {isLoading && (
+        <LoadingOverlay>
+          <ChaoticOrbit color="#3498db" />
+        </LoadingOverlay>
+      )}
       <LoginContainer>
         <LoginBox
           initial={{ opacity: 0, y: -50 }}
@@ -138,7 +182,8 @@ const SignIn = () => {
           <Typography variant="h5" component="h1" align="center" gutterBottom>
             Sign in
           </Typography>
-          <Form onSubmit={(e) => { e.preventDefault(); login(input.email, input.password); }}>
+          {error && <ErrorMessage>{error}</ErrorMessage>}
+          <Form onSubmit={handleSubmit}>
             <Input
               type="email"
               name="email"
@@ -155,8 +200,8 @@ const SignIn = () => {
               value={input.password}
               onChange={handleChange}
             />
-            <SignInButton>
-              Sign In
+            <SignInButton type="submit">
+              <ButtonContent>Sign In</ButtonContent>
             </SignInButton>
           </Form>
           <motion.div
